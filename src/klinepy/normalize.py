@@ -26,11 +26,12 @@ def _to_epoch_ms(value: Any) -> int:
     """Normalize a time-like value to epoch milliseconds (UTC for dates)."""
     if isinstance(value, _dt.datetime):
         if value.tzinfo is None:
-            value = value.replace(tzinfo=_dt.timezone.utc)
+            value = value.replace(tzinfo=_dt.UTC)
         return int(value.timestamp() * 1000)
     if isinstance(value, _dt.date):
         return int(
-            _dt.datetime(value.year, value.month, value.day, tzinfo=_dt.timezone.utc).timestamp() * 1000
+            _dt.datetime(value.year, value.month, value.day, tzinfo=_dt.UTC).timestamp()
+            * 1000
         )
     if isinstance(value, str):
         parsed = _dt.date.fromisoformat(value[:10])
@@ -76,7 +77,9 @@ def _frame_rows(frame: Any) -> list[dict[str, Any]]:
             return frame.to_dict(orient="records")  # type: ignore[return-value]
     except ImportError:  # pragma: no cover - pandas is a main dep
         pass
-    raise TypeError(f"unsupported bars type: {type(frame)!r}; expected polars/pandas DataFrame")
+    raise TypeError(
+        f"unsupported bars type: {type(frame)!r}; expected polars/pandas DataFrame"
+    )
 
 
 def normalize_ohlcv(bars: Any) -> list[dict[str, Any]]:
@@ -131,7 +134,10 @@ def _normalize_lines(
     """Align overlay line values to the bar count (pad/truncate with None)."""
     out: dict[str, list[float | None]] = {}
     for name, values in (lines or {}).items():
-        vals = [None if v is None or (isinstance(v, float) and math.isnan(v)) else float(v) for v in values]
+        vals = [
+            None if v is None or (isinstance(v, float) and math.isnan(v)) else float(v)
+            for v in values
+        ]
         if len(vals) < n_bars:
             vals = vals + [None] * (n_bars - len(vals))
         out[str(name)] = vals[:n_bars]
