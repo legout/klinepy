@@ -7,7 +7,9 @@ messaging layer: read the trait values into a plain ``cfg`` object, then
 
 from __future__ import annotations
 
+import html as _html
 import json
+import uuid
 from typing import TYPE_CHECKING
 
 from klinepy._theme import _KLINECHARTS_ESM
@@ -34,7 +36,7 @@ def _cfg(chart: KLineChart) -> str:
         "border_color",
         "text_color",
     )
-    return json.dumps({k: getattr(chart, k) for k in keys})
+    return json.dumps({k: getattr(chart, k) for k in keys}).replace("</", "<\\/")
 
 
 _JS = """
@@ -149,11 +151,11 @@ async function render(el, cfg) {
 """
 
 _BODY = f"""
-<div id="klinepy-chart"></div>
+<div id="__ID__"></div>
 <script type="module">
   import {{ init }} from "{_KLINECHARTS_ESM}";
   const cfg = __CFG__;
-  const el = document.getElementById("klinepy-chart");
+  const el = document.getElementById("__ID__");
   {_JS}
   render(el, cfg);
 </script>
@@ -162,7 +164,8 @@ _BODY = f"""
 
 def fragment(chart: KLineChart) -> str:
     """Embeddable HTML fragment — no ``<html>``/``<body>`` wrapper."""
-    return _BODY.replace("__CFG__", _cfg(chart))
+    dom_id = f"klinepy-chart-{uuid.uuid4().hex[:8]}"
+    return _BODY.replace("__ID__", dom_id).replace("__CFG__", _cfg(chart))
 
 
 def html(chart: KLineChart) -> str:
@@ -171,6 +174,6 @@ def html(chart: KLineChart) -> str:
         "<!DOCTYPE html>\n"
         '<html lang="en">\n'
         '<head><meta charset="utf-8"><title>'
-        f"{chart.title or 'klinepy'}</title></head>\n"
+        f"{_html.escape(chart.title or 'klinepy')}</title></head>\n"
         f"<body>\n{fragment(chart)}\n</body>\n</html>\n"
     )

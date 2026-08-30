@@ -36,6 +36,23 @@ def test_fragment_has_no_html_wrapper():
 
 
 def test_module_level_wrappers():
+    import re
+
     chart = KLineChart(_bars())
-    assert html(chart) == chart.to_html()
-    assert fragment(chart) == chart.fragment()
+    strip = lambda s: re.sub(r"klinepy-chart-\w+", "ID", s)
+    assert strip(html(chart)) == strip(chart.to_html())
+    assert strip(fragment(chart)) == strip(chart.fragment())
+
+
+def test_fragments_have_unique_container_ids():
+    a, b = fragment(KLineChart(_bars())), fragment(KLineChart(_bars()))
+    id_a = a.split('id="')[1].split('"')[0]
+    assert f'id="{id_a}"' in a and f'getElementById("{id_a}")' in a
+    assert f'id="{id_a}"' not in b  # different id per fragment
+
+
+def test_script_and_title_escaped():
+    doc = KLineChart(_bars(), title="</script><b>x").to_html()
+    assert "</script><b>" not in doc
+    raw = '{"close": "</script>"}'
+    assert raw not in doc
