@@ -27,7 +27,7 @@ Repository = "https://github.com/legout/klinepy"
 Issues = "https://github.com/legout/klinepy/issues"
 
 [dependency-groups]
-dev = ["pytest>=8.0.0", "ruff>=0.8.0"]
+dev = ["pytest>=8.0.0", "ruff>=0.8.0", "polars>=1.0.0"]
 
 [build-system]
 requires = ["uv_build>=0.11.8,<0.12.0"]
