@@ -1,0 +1,38 @@
+[project]
+name = "klinepy"
+version = "0.1.0"
+description = "Python wrapper for KLineCharts: standalone HTML, embeddable fragments, marimo/anywidget charts."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Volker Lorrmann", email = "volker.lorrmann@gmail.com" }]
+requires-python = ">=3.11"
+keywords = ["klinecharts", "candlestick", "chart", "anywidget", "marimo", "finance"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Office/Business :: Financial :: Investment",
+]
+dependencies = ["anywidget>=0.11.0"]
+
+[project.urls]
+Homepage = "https://github.com/legout/klinepy"
+Repository = "https://github.com/legout/klinepy"
+Issues = "https://github.com/legout/klinepy/issues"
+
+[dependency-groups]
+dev = ["pytest>=8.0.0", "ruff>=0.8.0"]
+
+[build-system]
+requires = ["uv_build>=0.11.8,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "klinepy"
+module-root = "src"
