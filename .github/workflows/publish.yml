@@ -1,0 +1,41 @@
+name: publish
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Version changed vs previous push?
+        id: ver
+        run: |
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            echo "changed=1" >> "$GITHUB_OUTPUT"   # first push — publish
+            exit 0
+          fi
+          if git diff "${{ github.event.before }}" HEAD -- pyproject.toml | grep -qE '^[+-]version'; then
+            echo "changed=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: astral-sh/setup-uv@v5
+      - name: Test
+        run: |
+          uv python install 3.12
+          uv run pytest tests/ -q
+      - name: Build + publish
+        if: steps.ver.outputs.changed == '1'
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          rm -rf dist
+          uv build
+          uv publish
