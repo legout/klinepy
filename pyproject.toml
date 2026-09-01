@@ -1,6 +1,6 @@
 [project]
 name = "klinepy"
-version = "0.1.0"
+version = "0.2.0"
 description = "Python wrapper for KLineCharts: standalone HTML, embeddable fragments, marimo/anywidget charts."
 readme = "README.md"
 license = "MIT"

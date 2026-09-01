@@ -14,9 +14,11 @@ from klinepy import KLineChart, html, fragment
 
 chart = KLineChart(
     bars,                      # polars/pandas DataFrame or list of dicts
-    lines={"SMA 20": sma},     # optional overlay values, aligned/padded to bar count
+    lines={"SMA 20": sma},     # overlay lines on the price pane, aligned/padded to bar count
+    panes={"rel vol": rv},     # own-pane series (one sub-pane per named series)
+    overlays=[boxes],          # boxes / klinecharts overlay specs, see below
     title="AAPL",
-    indicators=[{"name": "MACD"}],  # optional built-in klinecharts indicators
+    indicators=[{"name": "MACD"}}],  # optional built-in klinecharts indicators
     height=460,
 )
 
@@ -28,6 +30,25 @@ open("aapl.html", "w").write(chart.to_html())   # or: html(chart)
 
 # 3. embeddable fragment for web apps (no <html> wrapper)
 page += chart.fragment()                        # or: fragment(chart)
+```
+
+### Overlays
+
+`lines` and `panes` plot the values you pass (amber accent). For boxes — e.g.
+Darvas:
+
+```python
+chart = KLineChart(bars, overlays=[
+    {"start": dt.date(2026, 1, 5), "end": dt.date(2026, 1, 25),
+     "top": 103.0, "bottom": 97.0},          # rendered as an amber rect
+])
+```
+
+Full [klinecharts overlay specs](https://klinecharts.com/en-US/guide/overlay)
+(`priceLine`, `segment`, `simpleTag`, …) pass through unchanged:
+
+```python
+overlays=[{"name": "priceLine", "points": [{"timestamp": ts_ms, "value": 99.5}]}]
 ```
 
 ## Development
