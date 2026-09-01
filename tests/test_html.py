@@ -64,3 +64,11 @@ def test_output_contains_line_and_pane_values():
         assert '"SMA 20": [10.0, 10.5]' in out
         assert '"rel vol": [1.2, 0.8]' in out
         assert "pane_line_" in out  # own-pane series wired
+
+
+def test_output_contains_overlays():
+    box = {"start": 1767225600000, "end": 1767312000000, "top": 11.5, "bottom": 9.0}
+    doc = KLineChart(_bars(), overlays=[box]).to_html()
+    assert '"name": "rect"' in doc
+    assert '"value": 11.5' in doc
+    assert "createOverlay" in doc

@@ -14,7 +14,12 @@ import anywidget
 import traitlets
 
 from klinepy._theme import _DEFAULTS, _KLINECHARTS_ESM
-from klinepy.normalize import _infer_precision, _normalize_lines, normalize_ohlcv
+from klinepy.normalize import (
+    _infer_precision,
+    _normalize_lines,
+    _normalize_overlays,
+    normalize_ohlcv,
+)
 
 __all__ = ["KLineChart"]
 
@@ -23,9 +28,31 @@ class KLineChart(anywidget.AnyWidget):
     """klinecharts v10 widget: candle pane + volume pane + overlay lines."""
 
     _esm = f"""
-    import {{ init, dispose, registerIndicator }} from "{_KLINECHARTS_ESM}";
+    import {{ init, dispose, registerIndicator, registerOverlay }} from "{_KLINECHARTS_ESM}";
 
     let _seriesSeq = 0;
+
+    // Box overlay (e.g. Darvas): rect figure from two corner points.
+    // Border color comes from the per-overlay styles override at create time.
+    registerOverlay({{
+      name: "box",
+      totalStep: 2,
+      needDefaultPointFigure: true,
+      needDefaultXAxisFigure: true,
+      needDefaultYAxisFigure: true,
+      createPointFigures: ({{ coordinates }}) =>
+        coordinates.length === 2
+          ? [{{
+              type: "rect",
+              attrs: {{
+                x: Math.min(coordinates[0].x, coordinates[1].x),
+                y: Math.min(coordinates[0].y, coordinates[1].y),
+                width: Math.abs(coordinates[1].x - coordinates[0].x),
+                height: Math.abs(coordinates[1].y - coordinates[0].y),
+              }},
+            }}]
+          : [],
+    }});
 
     // Plot Python-supplied values as a custom indicator line.
     function addSeries(chart, name, values, paneId, accent, series) {{
@@ -49,6 +76,7 @@ class KLineChart(anywidget.AnyWidget):
 
       const lines = model.get("lines") || {{}};
       const overlayNames = Object.keys(lines);
+      const accent = model.get("accent_color");
 
       const styles = {{
         grid: {{
@@ -116,8 +144,22 @@ class KLineChart(anywidget.AnyWidget):
         callback(bars, false);
         if (!initialScrollDone && bars.length) {{
           initialScrollDone = true;
+          // Overlays need data-loaded axes; create them once, after first load.
+          (model.get("overlays") || []).forEach((o) => {{
+            try {{
+              chart.createOverlay(
+                o.name === "rect"
+                  ? {{ ...o, name: "box", styles: {{ rect: {{ style: "stroke", borderColor: accent, borderSize: 1 }} }} }}
+                  : o
+              );
+            }} catch (e) {{
+              console.warn("overlay failed:", o.name, e);
+            }}
+          }});
+          // scrollToDataIndex here breaks overlay rendering in 10.0.2;
+          // offset 0 shows the latest bars instead.
           try {{
-            chart.scrollToDataIndex(Math.max(0, bars.length - 120));
+            chart.setOffsetRightDistance(0);
           }} catch (e) {{ /* older API */ }}
         }}
       }};
@@ -126,7 +168,6 @@ class KLineChart(anywidget.AnyWidget):
       chart.createIndicator({{ name: "VOL", paneId: "candle_pane_vol" }});
       chart.setPaneOptions({{ id: "candle_pane_vol", height: 90 }});
       // Overlay lines: plot the synced Python values, amber accent, on the price pane.
-      const accent = model.get("accent_color");
       overlayNames.forEach((n) => addSeries(chart, n, lines[n], "candle_pane", accent, "price"));
       // Own-pane series (e.g. rel vol): one sub-pane per named series.
       const panes = model.get("panes") || {{}};
@@ -136,7 +177,6 @@ class KLineChart(anywidget.AnyWidget):
         addSeries(chart, n, panes[n], paneId, accent, "normal");
         chart.setPaneOptions({{ id: paneId, height: 90 }});
       }});
-
       // Built-in indicators: pane="candle" stacks on the price pane,
       // pane="sub" (default) gets its own sub-pane below volume.
       const inds = model.get("indicators") || [];
@@ -179,6 +219,7 @@ class KLineChart(anywidget.AnyWidget):
     bars = traitlets.List(trait=traitlets.Dict(traits=None)).tag(sync=True)
     lines = traitlets.Dict().tag(sync=True)
     panes = traitlets.Dict().tag(sync=True)
+    overlays = traitlets.List(trait=traitlets.Dict(traits=None)).tag(sync=True)
     indicators = traitlets.List(trait=traitlets.Dict(traits=None)).tag(sync=True)
     title = traitlets.Unicode("").tag(sync=True)
     height = traitlets.Int(460).tag(sync=True)
@@ -196,6 +237,7 @@ class KLineChart(anywidget.AnyWidget):
         *,
         lines: Mapping[str, Sequence[float | None]] | None = None,
         panes: Mapping[str, Sequence[float | None]] | None = None,
+        overlays: Sequence[Mapping[str, Any]] | None = None,
         indicators: Sequence[Mapping[str, Any]] | None = None,
         title: str = "",
         height: int = 460,
@@ -212,6 +254,7 @@ class KLineChart(anywidget.AnyWidget):
             bars=records,
             lines=_normalize_lines(lines, len(records)),
             panes=_normalize_lines(panes, len(records)),
+            overlays=_normalize_overlays(overlays),
             indicators=[dict(ind) for ind in (indicators or [])],
             title=title,
             height=height,

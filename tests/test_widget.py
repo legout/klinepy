@@ -71,6 +71,33 @@ def test_esm_plots_real_line_values():
     assert 'calcParams: overlayNames.map(() => 20)' not in esm
 
 
+def test_overlays_trait_synced():
+    import datetime as dt
+
+    box = {
+        "start": dt.date(2026, 1, 1),
+        "end": dt.date(2026, 2, 1),
+        "top": 105.0,
+        "bottom": 95.0,
+    }
+    w = KLineChart([_row("2026-01-01")], overlays=[box])
+    (o,) = w.overlays
+    assert o["name"] == "rect"
+    ts0, ts1 = o["points"]
+    assert ts0["timestamp"] < ts1["timestamp"]
+    assert ts0["value"] == 105.0 and ts1["value"] == 95.0
+    assert KLineChart([_row("2026-01-01")]).overlays == []
+    # pass-through: custom shape with epoch-ms timestamps kept
+    w2 = KLineChart(
+        [_row("2026-01-01")],
+        overlays=[{"name": "priceLine", "points": [{"timestamp": 1767225600000, "value": 99.5}]}],
+    )
+    assert w2.overlays[0]["name"] == "priceLine"
+    # ESM wires overlays
+    assert 'model.get("overlays")' in KLineChart._esm
+    assert "createOverlay" in KLineChart._esm
+
+
 def test_precision_inference():
     rows = [_row("2026-01-0" + str(d), c=123.4567) for d in range(1, 4)]
     w = KLineChart(rows)

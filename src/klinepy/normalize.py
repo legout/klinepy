@@ -144,6 +144,25 @@ def _normalize_lines(
     return out
 
 
+def _normalize_overlays(
+    overlays: Sequence[Mapping[str, Any]] | None,
+) -> list[dict[str, Any]]:
+    """Box sugar → klinecharts rect; full overlay specs pass through."""
+    out: list[dict[str, Any]] = []
+    for o in overlays or []:
+        o = dict(o)
+        if "start" in o:  # box: {start, end, top, bottom} → rect overlay
+            o = {
+                "name": "rect",
+                "points": [
+                    {"timestamp": _to_epoch_ms(o["start"]), "value": float(o["top"])},
+                    {"timestamp": _to_epoch_ms(o["end"]), "value": float(o["bottom"])},
+                ],
+            }
+        out.append(o)
+    return out
+
+
 def _infer_precision(records: Sequence[Mapping[str, Any]]) -> int:
     """Max decimal places seen in closes, clamped to [2, 4] (fallback 2)."""
     decimals = 2

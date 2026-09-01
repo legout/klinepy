@@ -26,6 +26,7 @@ def _cfg(chart: KLineChart) -> str:
         "bars",
         "lines",
         "panes",
+        "overlays",
         "indicators",
         "title",
         "height",
@@ -42,6 +43,28 @@ def _cfg(chart: KLineChart) -> str:
 
 _JS = """
 let _seriesSeq = 0;
+
+// Box overlay (e.g. Darvas): rect figure from two corner points.
+// Border color comes from the per-overlay styles override at create time.
+registerOverlay({
+  name: "box",
+  totalStep: 2,
+  needDefaultPointFigure: true,
+  needDefaultXAxisFigure: true,
+  needDefaultYAxisFigure: true,
+  createPointFigures: ({ coordinates }) =>
+    coordinates.length === 2
+      ? [{
+          type: "rect",
+          attrs: {
+            x: Math.min(coordinates[0].x, coordinates[1].x),
+            y: Math.min(coordinates[0].y, coordinates[1].y),
+            width: Math.abs(coordinates[1].x - coordinates[0].x),
+            height: Math.abs(coordinates[1].y - coordinates[0].y),
+          },
+        }]
+      : [],
+});
 
 // Plot Python-supplied values as a custom indicator line.
 function addSeries(chart, name, values, paneId, accent, series) {
@@ -65,6 +88,7 @@ async function render(el, cfg) {
 
   const lines = cfg.lines || {};
   const overlayNames = Object.keys(lines);
+  const accent = cfg.accent_color;
 
   const styles = {
     grid: {
@@ -129,8 +153,22 @@ async function render(el, cfg) {
     callback(bars, false);
     if (!initialScrollDone && bars.length) {
       initialScrollDone = true;
+      // Overlays need data-loaded axes; create them once, after first load.
+      (cfg.overlays || []).forEach((o) => {
+        try {
+          chart.createOverlay(
+            o.name === "rect"
+              ? { ...o, name: "box", styles: { rect: { style: "stroke", borderColor: accent, borderSize: 1 } } }
+              : o
+          );
+        } catch (e) {
+          console.warn("overlay failed:", o.name, e);
+        }
+      });
+      // scrollToDataIndex here breaks overlay rendering in 10.0.2;
+      // offset 0 shows the latest bars instead.
       try {
-        chart.scrollToDataIndex(Math.max(0, bars.length - 120));
+        chart.setOffsetRightDistance(0);
       } catch (e) { /* older API */ }
     }
   };
@@ -139,7 +177,6 @@ async function render(el, cfg) {
   chart.createIndicator({ name: "VOL", paneId: "candle_pane_vol" });
   chart.setPaneOptions({ id: "candle_pane_vol", height: 90 });
   // Overlay lines: plot the synced Python values, amber accent, on the price pane.
-  const accent = cfg.accent_color;
   overlayNames.forEach((n) => addSeries(chart, n, lines[n], "candle_pane", accent, "price"));
   // Own-pane series (e.g. rel vol): one sub-pane per named series.
   const panes = cfg.panes || {};
@@ -149,6 +186,7 @@ async function render(el, cfg) {
     addSeries(chart, n, panes[n], paneId, accent, "normal");
     chart.setPaneOptions({ id: paneId, height: 90 });
   });
+  // Overlays (boxes, lines, tags): created inside loadBars after first data.
 
   const inds = cfg.indicators || [];
   let subCount = 0;
@@ -175,7 +213,7 @@ async function render(el, cfg) {
 _BODY = f"""
 <div id="__ID__"></div>
 <script type="module">
-  import {{ init, registerIndicator }} from "{_KLINECHARTS_ESM}";
+  import {{ init, registerIndicator, registerOverlay }} from "{_KLINECHARTS_ESM}";
   const cfg = __CFG__;
   const el = document.getElementById("__ID__");
   {_JS}
