@@ -25,6 +25,7 @@ def _cfg(chart: KLineChart) -> str:
     keys = (
         "bars",
         "lines",
+        "panes",
         "indicators",
         "title",
         "height",
@@ -40,6 +41,22 @@ def _cfg(chart: KLineChart) -> str:
 
 
 _JS = """
+let _seriesSeq = 0;
+
+// Plot Python-supplied values as a custom indicator line.
+function addSeries(chart, name, values, paneId, accent, series) {
+  const key = "klinepy_series_" + (_seriesSeq++);
+  registerIndicator({
+    name: key,
+    shortName: name,
+    series,
+    precision: 2,
+    figures: [{ key: "v", title: name + ": ", type: "line", styles: () => ({ color: accent, size: 1.5 }) }],
+    calc: (dataList, indicator) => dataList.map((d, i) => ({ v: values[i] ?? null })),
+  });
+  return chart.createIndicator({ name: key, paneId }, paneId === "candle_pane");
+}
+
 async function render(el, cfg) {
   const container = document.createElement("div");
   container.style.width = "100%";
@@ -121,12 +138,17 @@ async function render(el, cfg) {
 
   chart.createIndicator({ name: "VOL", paneId: "candle_pane_vol" });
   chart.setPaneOptions({ id: "candle_pane_vol", height: 90 });
-  if (overlayNames.length) {
-    chart.createIndicator(
-      { name: "MA", paneId: "candle_pane", calcParams: overlayNames.map(() => 20), shortName: overlayNames.join("/") },
-      true
-    );
-  }
+  // Overlay lines: plot the synced Python values, amber accent, on the price pane.
+  const accent = cfg.accent_color;
+  overlayNames.forEach((n) => addSeries(chart, n, lines[n], "candle_pane", accent, "price"));
+  // Own-pane series (e.g. rel vol): one sub-pane per named series.
+  const panes = cfg.panes || {};
+  let paneCount = 0;
+  Object.keys(panes).forEach((n) => {
+    const paneId = "pane_line_" + (paneCount++);
+    addSeries(chart, n, panes[n], paneId, accent, "normal");
+    chart.setPaneOptions({ id: paneId, height: 90 });
+  });
 
   const inds = cfg.indicators || [];
   let subCount = 0;
@@ -153,7 +175,7 @@ async function render(el, cfg) {
 _BODY = f"""
 <div id="__ID__"></div>
 <script type="module">
-  import {{ init }} from "{_KLINECHARTS_ESM}";
+  import {{ init, registerIndicator }} from "{_KLINECHARTS_ESM}";
   const cfg = __CFG__;
   const el = document.getElementById("__ID__");
   {_JS}

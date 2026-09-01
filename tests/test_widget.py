@@ -53,6 +53,24 @@ def test_lines_padded_to_bar_count(bars):
     assert w.lines["x"] == [1.0, None]
 
 
+def test_panes_trait_synced():
+    panes = {"rel vol": [1.2, 0.8]}
+    w = KLineChart([_row("2026-01-01"), _row("2026-01-02")], panes=panes)
+    assert w.panes == panes
+    assert KLineChart([_row("2026-01-01")]).panes == {}
+    # ESM wires pane series as custom indicators
+    assert 'model.get("panes")' in KLineChart._esm
+    assert "pane_line_" in KLineChart._esm
+
+
+def test_esm_plots_real_line_values():
+    esm = KLineChart._esm
+    # custom indicator calc returns the synced Python values
+    assert "calc: (dataList, indicator)" in esm
+    # no fake MA(20) masquerading as the user's overlays
+    assert 'calcParams: overlayNames.map(() => 20)' not in esm
+
+
 def test_precision_inference():
     rows = [_row("2026-01-0" + str(d), c=123.4567) for d in range(1, 4)]
     w = KLineChart(rows)

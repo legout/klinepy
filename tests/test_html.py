@@ -56,3 +56,11 @@ def test_script_and_title_escaped():
     assert "</script><b>" not in doc
     raw = '{"close": "</script>"}'
     assert raw not in doc
+
+
+def test_output_contains_line_and_pane_values():
+    chart = KLineChart(_bars(), lines={"SMA 20": [10.0, 10.5]}, panes={"rel vol": [1.2, 0.8]})
+    for out in (chart.to_html(), chart.fragment()):
+        assert '"SMA 20": [10.0, 10.5]' in out
+        assert '"rel vol": [1.2, 0.8]' in out
+        assert "pane_line_" in out  # own-pane series wired

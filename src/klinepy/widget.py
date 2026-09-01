@@ -23,7 +23,23 @@ class KLineChart(anywidget.AnyWidget):
     """klinecharts v10 widget: candle pane + volume pane + overlay lines."""
 
     _esm = f"""
-    import {{ init, dispose }} from "{_KLINECHARTS_ESM}";
+    import {{ init, dispose, registerIndicator }} from "{_KLINECHARTS_ESM}";
+
+    let _seriesSeq = 0;
+
+    // Plot Python-supplied values as a custom indicator line.
+    function addSeries(chart, name, values, paneId, accent, series) {{
+      const key = "klinepy_series_" + (_seriesSeq++);
+      registerIndicator({{
+        name: key,
+        shortName: name,
+        series,
+        precision: 2,
+        figures: [{{ key: "v", title: name + ": ", type: "line", styles: () => ({{ color: accent, size: 1.5 }}) }}],
+        calc: (dataList, indicator) => dataList.map((d, i) => ({{ v: values[i] ?? null }})),
+      }});
+      return chart.createIndicator({{ name: key, paneId }}, paneId === "candle_pane");
+    }}
 
     async function render({{ model, el }}) {{
       const container = document.createElement("div");
@@ -109,14 +125,17 @@ class KLineChart(anywidget.AnyWidget):
 
       chart.createIndicator({{ name: "VOL", paneId: "candle_pane_vol" }});
       chart.setPaneOptions({{ id: "candle_pane_vol", height: 90 }});
-      // Overlay lines: use the built-in MA with the line count as periods.
-      // One MA line per Python-side overlay, rendered as the amber accent.
-      if (overlayNames.length) {{
-        chart.createIndicator(
-          {{ name: "MA", paneId: "candle_pane", calcParams: overlayNames.map(() => 20), shortName: overlayNames.join("/") }},
-          true
-        );
-      }}
+      // Overlay lines: plot the synced Python values, amber accent, on the price pane.
+      const accent = model.get("accent_color");
+      overlayNames.forEach((n) => addSeries(chart, n, lines[n], "candle_pane", accent, "price"));
+      // Own-pane series (e.g. rel vol): one sub-pane per named series.
+      const panes = model.get("panes") || {{}};
+      let paneCount = 0;
+      Object.keys(panes).forEach((n) => {{
+        const paneId = "pane_line_" + (paneCount++);
+        addSeries(chart, n, panes[n], paneId, accent, "normal");
+        chart.setPaneOptions({{ id: paneId, height: 90 }});
+      }});
 
       // Built-in indicators: pane="candle" stacks on the price pane,
       // pane="sub" (default) gets its own sub-pane below volume.
@@ -159,6 +178,7 @@ class KLineChart(anywidget.AnyWidget):
 
     bars = traitlets.List(trait=traitlets.Dict(traits=None)).tag(sync=True)
     lines = traitlets.Dict().tag(sync=True)
+    panes = traitlets.Dict().tag(sync=True)
     indicators = traitlets.List(trait=traitlets.Dict(traits=None)).tag(sync=True)
     title = traitlets.Unicode("").tag(sync=True)
     height = traitlets.Int(460).tag(sync=True)
@@ -175,6 +195,7 @@ class KLineChart(anywidget.AnyWidget):
         bars: Any,
         *,
         lines: Mapping[str, Sequence[float | None]] | None = None,
+        panes: Mapping[str, Sequence[float | None]] | None = None,
         indicators: Sequence[Mapping[str, Any]] | None = None,
         title: str = "",
         height: int = 460,
@@ -190,6 +211,7 @@ class KLineChart(anywidget.AnyWidget):
         super().__init__(
             bars=records,
             lines=_normalize_lines(lines, len(records)),
+            panes=_normalize_lines(panes, len(records)),
             indicators=[dict(ind) for ind in (indicators or [])],
             title=title,
             height=height,
