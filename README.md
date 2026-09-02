@@ -3,6 +3,8 @@
 Python wrapper for KLineCharts (klinecharts@10) — one chart spec, three outputs:
 standalone HTML, embeddable fragment, marimo/anywidget widget.
 
+![overview](docs/images/overview.png)
+
 Grayscale theme with a single amber accent (`#d97706`). The JS side loads the
 klinecharts ESM build from jsDelivr (needs internet in the browser); the
 Python side is pure data (polars/pandas frames or dicts — no data deps).
@@ -43,6 +45,8 @@ chart = KLineChart(bars, overlays=[
      "top": 103.0, "bottom": 97.0},          # rendered as an amber rect
 ])
 ```
+
+![boxes](docs/images/boxes.png)
 
 Full [klinecharts overlay specs](https://klinecharts.com/en-US/guide/overlay)
 (`priceLine`, `segment`, `simpleTag`, …) pass through unchanged:
