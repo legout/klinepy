@@ -13,7 +13,7 @@ from typing import Any
 import anywidget
 import traitlets
 
-from klinepy._theme import _DEFAULTS, _KLINECHARTS_ESM
+from klinepy._theme import _DEFAULTS, _KLINECHARTS_ESM, _theme
 from klinepy.normalize import (
     _infer_precision,
     _normalize_lines,
@@ -239,16 +239,27 @@ class KLineChart(anywidget.AnyWidget):
         panes: Mapping[str, Sequence[float | None]] | None = None,
         overlays: Sequence[Mapping[str, Any]] | None = None,
         indicators: Sequence[Mapping[str, Any]] | None = None,
+        theme: str = "default",
         title: str = "",
         height: int = 460,
         precision: int | None = None,
-        up_color: str = _DEFAULTS["up"],
-        down_color: str = _DEFAULTS["down"],
-        accent_color: str = _DEFAULTS["accent"],
-        grid_color: str = _DEFAULTS["grid"],
-        border_color: str = _DEFAULTS["border"],
-        text_color: str = _DEFAULTS["text"],
+        up_color: str | None = None,
+        down_color: str | None = None,
+        accent_color: str | None = None,
+        grid_color: str | None = None,
+        border_color: str | None = None,
+        text_color: str | None = None,
     ) -> None:
+        if theme != "default" and (
+            up_color is not None
+            or down_color is not None
+            or accent_color is not None
+            or grid_color is not None
+            or border_color is not None
+            or text_color is not None
+        ):
+            raise ValueError("pass theme= or explicit colors, not both")
+        t = _theme(theme)
         records = normalize_ohlcv(bars)
         super().__init__(
             bars=records,
@@ -259,12 +270,12 @@ class KLineChart(anywidget.AnyWidget):
             title=title,
             height=height,
             precision=precision if precision is not None else _infer_precision(records),
-            up_color=up_color,
-            down_color=down_color,
-            accent_color=accent_color,
-            grid_color=grid_color,
-            border_color=border_color,
-            text_color=text_color,
+            up_color=up_color if up_color is not None else t["up"],
+            down_color=down_color if down_color is not None else t["down"],
+            accent_color=accent_color if accent_color is not None else t["accent"],
+            grid_color=grid_color if grid_color is not None else t["grid"],
+            border_color=border_color if border_color is not None else t["border"],
+            text_color=text_color if text_color is not None else t["text"],
         )
 
     def to_html(self) -> str:

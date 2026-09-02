@@ -3,7 +3,15 @@
 Python wrapper for KLineCharts (klinecharts@10) — one chart spec, three outputs:
 standalone HTML, embeddable fragment, marimo/anywidget widget.
 
-![overview](docs/images/overview.png)
+Three built-in themes — grayscale + amber (default), pastel green/red, black/grey:
+
+| `theme="default"` | `theme="classic"` | `theme="mono"` |
+|---|---|---|
+| ![default](docs/images/overview.png) | ![classic](docs/images/classic.png) | ![mono](docs/images/mono.png) |
+
+```python
+KLineChart(bars, theme="classic")   # or "mono"; explicit *_color kwargs still override
+```
 
 Grayscale theme with a single amber accent (`#d97706`). The JS side loads the
 klinecharts ESM build from jsDelivr (needs internet in the browser); the

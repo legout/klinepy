@@ -63,6 +63,26 @@ def test_panes_trait_synced():
     assert "pane_line_" in KLineChart._esm
 
 
+def test_theme_presets():
+    import pytest
+
+    default = KLineChart([_row("2026-01-01")])
+    assert default.up_color == "#404040"  # grayscale default unchanged
+
+    classic = KLineChart([_row("2026-01-01")], theme="classic")
+    assert classic.up_color == "#79b473"  # pastel green
+    assert classic.down_color == "#e08276"  # pastel red
+    assert classic.accent_color == "#2f6f4f"
+
+    mono = KLineChart([_row("2026-01-01")], theme="mono")
+    assert mono.up_color == "#1a1a1a"  # black
+    assert mono.down_color == "#9e9e9e"  # grey
+    assert mono.accent_color == "#1a1a1a"
+
+    with pytest.raises(ValueError, match="unknown theme"):
+        KLineChart([_row("2026-01-01")], theme="nope")
+
+
 def test_esm_plots_real_line_values():
     esm = KLineChart._esm
     # custom indicator calc returns the synced Python values
