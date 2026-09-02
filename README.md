@@ -3,15 +3,37 @@
 Python wrapper for KLineCharts (klinecharts@10) — one chart spec, three outputs:
 standalone HTML, embeddable fragment, marimo/anywidget widget.
 
-Three built-in themes — grayscale + amber (default), pastel green/red, black/grey:
+Three built-in themes — grayscale + amber (default), pastel green/red, black/grey —
+plus fully custom colors:
 
 | `theme="default"` | `theme="classic"` | `theme="mono"` |
 |---|---|---|
-| ![default](docs/images/overview.png) | ![classic](docs/images/classic.png) | ![mono](docs/images/mono.png) |
+| ![default](docs/images/default.png) | ![classic](docs/images/classic.png) | ![mono](docs/images/mono.png) |
 
 ```python
-KLineChart(bars, theme="classic")   # or "mono"; explicit *_color kwargs still override
+KLineChart(bars, theme="classic")   # preset; explicit *_color kwargs still override
 ```
+
+Custom palettes via a dict (merges into the theme) or the `Colors` dataclass
+(replaces it) — both accept the same keys: `up`, `down`, `no_change`, `accent`,
+`price_line` (dashed last-price line + tag), `background`, `grid`, `border`, `text`.
+
+```python
+from klinepy import KLineChart, Colors
+
+# tweak one key of a preset
+KLineChart(bars, theme="classic", colors={"accent": "#b91c1c"})
+
+# full custom, e.g. dark
+KLineChart(bars, colors=Colors(
+    up="#4ade80", down="#f87171", accent="#fbbf24", price_line="#fbbf24",
+    background="#0f172a", grid="#1e293b", border="#334155", text="#94a3b8",
+))
+```
+
+![dark](docs/images/dark.png)
+
+Precedence: `*_color` kwargs > `colors` > `theme` > defaults.
 
 Grayscale theme with a single amber accent (`#d97706`). The JS side loads the
 klinecharts ESM build from jsDelivr (needs internet in the browser); the

@@ -83,6 +83,41 @@ def test_theme_presets():
         KLineChart([_row("2026-01-01")], theme="nope")
 
 
+def test_colors_dict_merges_into_theme():
+    w = KLineChart([_row("2026-01-01")], theme="classic", colors={"accent": "#b91c1c"})
+    assert w.accent_color == "#b91c1c"  # overridden
+    assert w.up_color == "#79b473"  # from theme
+
+
+def test_colors_object_replaces_theme():
+    from klinepy import Colors
+
+    c = Colors(accent="#b91c1c", background="#0f172a")
+    w = KLineChart([_row("2026-01-01")], theme="classic", colors=c)
+    assert w.accent_color == "#b91c1c"
+    assert w.background_color == "#0f172a"
+    assert w.up_color == "#404040"  # Colors default, NOT classic preset
+
+
+def test_colors_unknown_keys_raise():
+    import pytest
+
+    with pytest.raises(TypeError, match="unknown color keys"):
+        KLineChart([_row("2026-01-01")], colors={"acent": "#000"})
+
+
+def test_new_color_traits_synced():
+    w = KLineChart([_row("2026-01-01")], colors={"price_line": "#123456", "background": "#000000"})
+    assert w.price_line_color == "#123456"
+    assert w.background_color == "#000000"
+    assert w.no_change_color == "#737373"  # default
+
+
+def test_explicit_color_kwargs_beat_colors():
+    w = KLineChart([_row("2026-01-01")], colors={"accent": "#111111"}, accent_color="#222222")
+    assert w.accent_color == "#222222"
+
+
 def test_esm_plots_real_line_values():
     esm = KLineChart._esm
     # custom indicator calc returns the synced Python values

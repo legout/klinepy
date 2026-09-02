@@ -33,7 +33,10 @@ def _cfg(chart: KLineChart) -> str:
         "precision",
         "up_color",
         "down_color",
+        "no_change_color",
         "accent_color",
+        "price_line_color",
+        "background_color",
         "grid_color",
         "border_color",
         "text_color",
@@ -84,6 +87,7 @@ async function render(el, cfg) {
   const container = document.createElement("div");
   container.style.width = "100%";
   container.style.height = cfg.height + "px";
+  container.style.background = cfg.background_color;
   el.appendChild(container);
 
   const lines = cfg.lines || {};
@@ -99,20 +103,29 @@ async function render(el, cfg) {
       bar: {
         upColor: cfg.up_color,
         downColor: cfg.down_color,
-        noChangeColor: cfg.down_color,
+        noChangeColor: cfg.no_change_color,
         upBorderColor: cfg.up_color,
         downBorderColor: cfg.down_color,
-        noChangeBorderColor: cfg.down_color,
+        noChangeBorderColor: cfg.no_change_color,
         upWickColor: cfg.up_color,
         downWickColor: cfg.down_color,
-        noChangeWickColor: cfg.down_color,
+        noChangeWickColor: cfg.no_change_color,
+      },
+      priceMark: {
+        high: { color: cfg.text_color },
+        low: { color: cfg.text_color },
+        last: {
+          upColor: cfg.price_line_color,
+          downColor: cfg.price_line_color,
+          noChangeColor: cfg.price_line_color,
+        },
       },
     },
     indicator: {
       bars: [{
         upColor: cfg.up_color,
         downColor: cfg.down_color,
-        noChangeColor: cfg.down_color,
+        noChangeColor: cfg.no_change_color,
       }],
     },
     xAxis: {

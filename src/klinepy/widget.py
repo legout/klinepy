@@ -13,7 +13,7 @@ from typing import Any
 import anywidget
 import traitlets
 
-from klinepy._theme import _DEFAULTS, _KLINECHARTS_ESM, _theme
+from klinepy._theme import _DEFAULTS, _KLINECHARTS_ESM, Colors, _merge_colors
 from klinepy.normalize import (
     _infer_precision,
     _normalize_lines,
@@ -72,6 +72,7 @@ class KLineChart(anywidget.AnyWidget):
       const container = document.createElement("div");
       container.style.width = "100%";
       container.style.height = model.get("height") + "px";
+      container.style.background = model.get("background_color");
       el.appendChild(container);
 
       const lines = model.get("lines") || {{}};
@@ -87,20 +88,29 @@ class KLineChart(anywidget.AnyWidget):
           bar: {{
             upColor: model.get("up_color"),
             downColor: model.get("down_color"),
-            noChangeColor: model.get("down_color"),
+            noChangeColor: model.get("no_change_color"),
             upBorderColor: model.get("up_color"),
             downBorderColor: model.get("down_color"),
-            noChangeBorderColor: model.get("down_color"),
+            noChangeBorderColor: model.get("no_change_color"),
             upWickColor: model.get("up_color"),
             downWickColor: model.get("down_color"),
-            noChangeWickColor: model.get("down_color"),
+            noChangeWickColor: model.get("no_change_color"),
+          }},
+          priceMark: {{
+            high: {{ color: model.get("text_color") }},
+            low: {{ color: model.get("text_color") }},
+            last: {{
+              upColor: model.get("price_line_color"),
+              downColor: model.get("price_line_color"),
+              noChangeColor: model.get("price_line_color"),
+            }},
           }},
         }},
         indicator: {{
           bars: [{{
             upColor: model.get("up_color"),
             downColor: model.get("down_color"),
-            noChangeColor: model.get("down_color"),
+            noChangeColor: model.get("no_change_color"),
           }}],
         }},
         xAxis: {{
@@ -224,12 +234,15 @@ class KLineChart(anywidget.AnyWidget):
     title = traitlets.Unicode("").tag(sync=True)
     height = traitlets.Int(460).tag(sync=True)
     precision = traitlets.Int(2).tag(sync=True)
-    up_color = traitlets.Unicode(_DEFAULTS["up"]).tag(sync=True)
-    down_color = traitlets.Unicode(_DEFAULTS["down"]).tag(sync=True)
-    accent_color = traitlets.Unicode(_DEFAULTS["accent"]).tag(sync=True)
-    grid_color = traitlets.Unicode(_DEFAULTS["grid"]).tag(sync=True)
-    border_color = traitlets.Unicode(_DEFAULTS["border"]).tag(sync=True)
-    text_color = traitlets.Unicode(_DEFAULTS["text"]).tag(sync=True)
+    up_color = traitlets.Unicode(_DEFAULTS.up).tag(sync=True)
+    down_color = traitlets.Unicode(_DEFAULTS.down).tag(sync=True)
+    no_change_color = traitlets.Unicode(_DEFAULTS.no_change).tag(sync=True)
+    accent_color = traitlets.Unicode(_DEFAULTS.accent).tag(sync=True)
+    price_line_color = traitlets.Unicode(_DEFAULTS.price_line).tag(sync=True)
+    background_color = traitlets.Unicode(_DEFAULTS.background).tag(sync=True)
+    grid_color = traitlets.Unicode(_DEFAULTS.grid).tag(sync=True)
+    border_color = traitlets.Unicode(_DEFAULTS.border).tag(sync=True)
+    text_color = traitlets.Unicode(_DEFAULTS.text).tag(sync=True)
 
     def __init__(
         self,
@@ -240,26 +253,23 @@ class KLineChart(anywidget.AnyWidget):
         overlays: Sequence[Mapping[str, Any]] | None = None,
         indicators: Sequence[Mapping[str, Any]] | None = None,
         theme: str = "default",
+        colors: Colors | Mapping[str, str] | None = None,
         title: str = "",
         height: int = 460,
         precision: int | None = None,
         up_color: str | None = None,
         down_color: str | None = None,
+        no_change_color: str | None = None,
         accent_color: str | None = None,
+        price_line_color: str | None = None,
+        background_color: str | None = None,
         grid_color: str | None = None,
         border_color: str | None = None,
         text_color: str | None = None,
     ) -> None:
-        if theme != "default" and (
-            up_color is not None
-            or down_color is not None
-            or accent_color is not None
-            or grid_color is not None
-            or border_color is not None
-            or text_color is not None
-        ):
-            raise ValueError("pass theme= or explicit colors, not both")
-        t = _theme(theme)
+        # precedence: explicit *_color kwargs > colors (dict merges into theme,
+        # Colors replaces) > theme > defaults
+        t = _merge_colors(theme, colors)
         records = normalize_ohlcv(bars)
         super().__init__(
             bars=records,
@@ -270,12 +280,15 @@ class KLineChart(anywidget.AnyWidget):
             title=title,
             height=height,
             precision=precision if precision is not None else _infer_precision(records),
-            up_color=up_color if up_color is not None else t["up"],
-            down_color=down_color if down_color is not None else t["down"],
-            accent_color=accent_color if accent_color is not None else t["accent"],
-            grid_color=grid_color if grid_color is not None else t["grid"],
-            border_color=border_color if border_color is not None else t["border"],
-            text_color=text_color if text_color is not None else t["text"],
+            up_color=up_color if up_color is not None else t.up,
+            down_color=down_color if down_color is not None else t.down,
+            no_change_color=no_change_color if no_change_color is not None else t.no_change,
+            accent_color=accent_color if accent_color is not None else t.accent,
+            price_line_color=price_line_color if price_line_color is not None else t.price_line,
+            background_color=background_color if background_color is not None else t.background,
+            grid_color=grid_color if grid_color is not None else t.grid,
+            border_color=border_color if border_color is not None else t.border,
+            text_color=text_color if text_color is not None else t.text,
         )
 
     def to_html(self) -> str:

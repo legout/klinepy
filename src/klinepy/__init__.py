@@ -6,6 +6,7 @@ Three outputs from one chart spec:
   - marimo/Jupyter widgets via anywidget (KLineChart)
 """
 
+from klinepy._theme import Colors
 from klinepy.html import fragment as fragment
 from klinepy.html import html as html
 from klinepy.normalize import normalize_ohlcv
@@ -13,4 +14,4 @@ from klinepy.widget import KLineChart
 
 __version__ = "0.2.0"
 
-__all__ = ["KLineChart", "__version__", "fragment", "html", "normalize_ohlcv"]
+__all__ = ["Colors", "KLineChart", "__version__", "fragment", "html", "normalize_ohlcv"]
