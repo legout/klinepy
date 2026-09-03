@@ -7,11 +7,24 @@ Three outputs from one chart spec:
 """
 
 from klinepy._theme import Colors
+from klinepy.bundle import SCHEMA_VERSION, ChartBundle, emit, load_bundle, to_chart
 from klinepy.html import fragment as fragment
 from klinepy.html import html as html
 from klinepy.normalize import normalize_ohlcv
 from klinepy.widget import KLineChart
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
-__all__ = ["Colors", "KLineChart", "__version__", "fragment", "html", "normalize_ohlcv"]
+__all__ = [
+    "SCHEMA_VERSION",
+    "ChartBundle",
+    "Colors",
+    "KLineChart",
+    "__version__",
+    "emit",
+    "fragment",
+    "html",
+    "load_bundle",
+    "normalize_ohlcv",
+    "to_chart",
+]

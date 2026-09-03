@@ -85,6 +85,35 @@ Full [klinecharts overlay specs](https://klinecharts.com/en-US/guide/overlay)
 overlays=[{"name": "priceLine", "points": [{"timestamp": ts_ms, "value": 99.5}]}]
 ```
 
+## Static chart bundles (`static-charts-v1`)
+
+One versioned, self-describing JSON per symbol — the data contract for
+standalone HTML / static sites. Charts never fetch or compute data; you
+produce the bundle (e.g. 2y OHLCV bars, rs_line, blue_dots, benchmark,
+fundamentals), klinepy validates, stamps `schema_version`, and renders.
+
+```python
+from klinepy import ChartBundle, emit, html, load_bundle
+
+bundle = ChartBundle(
+    symbol="AAPL",
+    bars=bars,                          # same inputs as KLineChart
+    rs_line=rs,                         # price-pane overlay line
+    blue_dots=[{"session": d, "value": 104.0}],   # dot markers at highs
+    benchmark="SPY",                    # metadata (not drawn)
+    fundamentals={"market_cap": 3.4e12},          # metadata (not drawn)
+)
+data = emit(bundle, "charts/AAPL.json")           # validated + version-stamped
+
+html("charts/AAPL.json")   # bundle path → standalone HTML
+html(data)                 # or the dict; fragment(...) works the same way
+load_bundle("charts/AAPL.json")                   # read + validate a bundle
+```
+
+`to_chart(bundle)` / `html(bundle)` / `fragment(bundle)` also accept plain
+`KLineChart` instances unchanged. Bump `schema_version` keys (`static-charts-v2`)
+only for breaking shape changes; loaders reject unknown versions.
+
 ## Development
 
 ```bash
