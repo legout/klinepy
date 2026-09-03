@@ -76,12 +76,12 @@ class KLineChart(anywidget.AnyWidget):
       // RRG presentation mode: precomputed scatter on a raw Canvas 2D
       // (klinecharts is a time-axis candle engine — wrong tool for x/y space).
       if ((model.get("rrg") || []).length) {{
-        const canvas = document.createElement("canvas");
-        canvas.style.width = "100%";
-        canvas.style.height = model.get("height") + "px";
-        canvas.style.background = model.get("background_color");
-        el.appendChild(canvas);
-        renderRRG(canvas, {{
+        const holder = document.createElement("div");
+        holder.style.width = "100%";
+        holder.style.height = model.get("height") + "px";
+        holder.style.background = model.get("background_color");
+        el.appendChild(holder);
+        renderRRG(holder, {{
           rrg: model.get("rrg"),
           accent_color: model.get("accent_color"),
           background_color: model.get("background_color"),

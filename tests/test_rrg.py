@@ -45,7 +45,7 @@ def test_rrg_and_bars_are_independent():
 
 def test_rrg_html_has_canvas_and_data_but_no_kline_math():
     out = _rrg_chart(title="RRG").to_html()
-    assert "<canvas" in out and "renderRRG" in out
+    assert 'createElement("canvas")' in out and "renderRRG" in out
     assert "klinecharts" not in out  # RRG mode: raw Canvas, no chart lib load
     payload = json.loads(
         "[" + out.split("const cfg = ")[1].split(";\n  const el")[0] + "]"

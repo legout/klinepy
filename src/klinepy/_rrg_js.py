@@ -29,7 +29,14 @@ function catmullRomSegments(pts) {
 // RRG presentation mode: precomputed scatter + spline tails + drag-zoom.
 // cfg.rrg = [{ name, points: [{date, x, y}] }] oldest -> newest, x/y already
 // computed (RS-Ratio / RS-Momentum). Grayscale + single accent.
-function renderRRG(container, cfg) {
+function renderRRG(el, cfg) {
+  // The el arg is the fragment container div; create the canvas inside it.
+  const container = document.createElement("canvas");
+  container.style.width = "100%";
+  container.style.height = cfg.height + "px";
+  container.style.background = cfg.background_color;
+  el.appendChild(container);
+
   const series = cfg.rrg || [];
   const ctx = container.getContext("2d");
   const accent = cfg.accent_color, text = cfg.text_color, grid = cfg.grid_color;
@@ -75,7 +82,7 @@ function renderRRG(container, cfg) {
       ctx.beginPath(); ctx.moveTo(left, gy); ctx.lineTo(left + plotW, gy); ctx.stroke();
       ctx.fillStyle = textDim;
       ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.fillText((xr[0] + t * (xr[1] - xr[0])).toFixed(1), gx, top + plotH + 4);
+      if (i > 0) ctx.fillText((xr[0] + t * (xr[1] - xr[0])).toFixed(1), gx, top + plotH + 4);
       ctx.textAlign = "right";
       ctx.fillText((yr[0] + t * (yr[1] - yr[0])).toFixed(1), left - 5, gy - 5);
     }
@@ -87,11 +94,11 @@ function renderRRG(container, cfg) {
     ctx.beginPath(); ctx.moveTo(left, cy); ctx.lineTo(left + plotW, cy); ctx.stroke();
     ctx.globalAlpha = 1;
     ctx.fillStyle = textDim; ctx.textAlign = "left";
-    ctx.fillText("Leading", left + 4, top + 4);
-    ctx.fillText("Weakening", left + 4, top + plotH - 12);
+    ctx.fillText("Improving", left + 4, top + 4);
+    ctx.fillText("Lagging", left + 4, top + plotH - 12);
     ctx.textAlign = "right";
-    ctx.fillText("Lagging", left + plotW - 4, top + plotH - 12);
-    ctx.fillText("Improving", left + plotW - 4, top + 4);
+    ctx.fillText("Weakening", left + plotW - 4, top + plotH - 12);
+    ctx.fillText("Leading", left + plotW - 4, top + 4);
 
     const detailed = series.length <= DETAIL_LIMIT;
     for (const s of series) {
@@ -130,7 +137,9 @@ function renderRRG(container, cfg) {
       if (s.name) ctx.fillText(s.name, head.x + 7, head.y - 10);
       if (pts.length > 1) {
         const prev = pts[pts.length - 2];
-        drawArrow(head.x, head.y, Math.atan2(head.y - prev.y, head.x - prev.x), accent, 5);
+        const ang = Math.atan2(head.y - prev.y, head.x - prev.x);
+        // Arrow sits behind the head dot so both stay visible.
+        drawArrow(head.x - 6 * Math.cos(ang), head.y - 6 * Math.sin(ang), ang, accent, 5);
       }
     }
 

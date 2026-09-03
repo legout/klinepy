@@ -205,35 +205,33 @@ async function render(el, cfg) {
 """
 
 _BODY = """
-<div id="__ID__">__INNER__</div>
+<div id="__ID__"></div>
 <script type="module">
   __IMPORT__
   const cfg = __CFG__;
   const el = document.getElementById("__ID__");
   {JS_BODY}
-  render(el, cfg);
+  __CALL__;
 </script>
 """
 
 
 def _body(chart: KLineChart) -> str:
     if chart.rrg:
-        # RRG presentation mode: raw Canvas 2D renderer (klinecharts is a
-        # time-axis candle engine — wrong tool for x/y space).
-        js = _RRG_JS
-        inner = f'<canvas style="width:100%;height:{chart.height}px"></canvas>'
+        # RRG presentation mode: raw Canvas 2D renderer — creates its own
+        # canvas and never loads klinecharts (wrong tool for x/y space).
+        js, import_line, call = _RRG_JS, "", "renderRRG(el, cfg)"
     else:
-        js, inner = _JS, ""
-    # RRG mode never loads klinecharts: it's a raw Canvas 2D scatter.
-    import_line = (
-        ""
-        if chart.rrg
-        else f'import {{ init, registerIndicator, registerOverlay }} from "{_KLINECHARTS_ESM}";'
-    )
+        js = _JS
+        import_line = (
+            "import { init, registerIndicator, registerOverlay } from "
+            f'"{_KLINECHARTS_ESM}";'
+        )
+        call = "render(el, cfg)"
     return (
         _BODY.replace("{JS_BODY}", js)
+        .replace("__CALL__", call)
         .replace("__IMPORT__", import_line)
-        .replace("__INNER__", inner)
         .replace("__ID__", f"klinepy-chart-{uuid.uuid4().hex[:8]}")
         .replace("__CFG__", _cfg(chart))
     )
