@@ -144,6 +144,36 @@ def _normalize_lines(
     return out
 
 
+def _normalize_rrg(
+    series: Sequence[Mapping[str, Any]] | None,
+) -> list[dict[str, Any]]:
+    """Precomputed RRG series pass-through: ``{"name", "points": [{"date", "x", "y"}]}``.
+
+    Coordinates arrive precomputed (x = RS-Ratio, y = RS-Momentum) — pure
+    presentation, no math here. Points missing x/y are dropped, points are
+    sorted oldest → newest, dates go through :func:`_to_epoch_ms`.
+    """
+    out: list[dict[str, Any]] = []
+    for s in series or []:
+        s = dict(s)
+        pts: list[dict[str, Any]] = []
+        for p in s.get("points") or []:
+            p = dict(p)
+            if p.get("x") is None or p.get("y") is None:
+                continue
+            raw_date = p.get("date", p.get("time"))
+            pts.append(
+                {
+                    "date": _to_epoch_ms(raw_date) if raw_date is not None else None,
+                    "x": float(p["x"]),
+                    "y": float(p["y"]),
+                }
+            )
+        pts.sort(key=lambda p: (p["date"] is None, p["date"] or 0))
+        out.append({"name": str(s.get("name", "")), "points": pts})
+    return out
+
+
 def _normalize_overlays(
     overlays: Sequence[Mapping[str, Any]] | None,
 ) -> list[dict[str, Any]]:

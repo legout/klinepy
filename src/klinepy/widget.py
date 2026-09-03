@@ -13,11 +13,13 @@ from typing import Any
 import anywidget
 import traitlets
 
+from klinepy._rrg_js import _RRG_JS
 from klinepy._theme import _DEFAULTS, _KLINECHARTS_ESM, Colors, _merge_colors
 from klinepy.normalize import (
     _infer_precision,
     _normalize_lines,
     _normalize_overlays,
+    _normalize_rrg,
     normalize_ohlcv,
 )
 
@@ -31,6 +33,8 @@ class KLineChart(anywidget.AnyWidget):
     import {{ init, dispose, registerIndicator, registerOverlay }} from "{_KLINECHARTS_ESM}";
 
     let _seriesSeq = 0;
+
+    {_RRG_JS}
 
     // Box overlay (e.g. Darvas): rect figure from two corner points.
     // Border color comes from the per-overlay styles override at create time.
@@ -69,6 +73,24 @@ class KLineChart(anywidget.AnyWidget):
     }}
 
     async function render({{ model, el }}) {{
+      // RRG presentation mode: precomputed scatter on a raw Canvas 2D
+      // (klinecharts is a time-axis candle engine — wrong tool for x/y space).
+      if ((model.get("rrg") || []).length) {{
+        const canvas = document.createElement("canvas");
+        canvas.style.width = "100%";
+        canvas.style.height = model.get("height") + "px";
+        canvas.style.background = model.get("background_color");
+        el.appendChild(canvas);
+        renderRRG(canvas, {{
+          rrg: model.get("rrg"),
+          accent_color: model.get("accent_color"),
+          background_color: model.get("background_color"),
+          grid_color: model.get("grid_color"),
+          text_color: model.get("text_color"),
+        }});
+        return;
+      }}
+
       const container = document.createElement("div");
       container.style.width = "100%";
       container.style.height = model.get("height") + "px";
@@ -149,6 +171,13 @@ class KLineChart(anywidget.AnyWidget):
       // After the first data load, scroll the viewport to the most recent
       // bars: a full-history view crushes the base of parabolic movers.
       let initialScrollDone = false;
+      // rect (box sugar) → "box" overlay; dot markers get the amber accent.
+      const overlaySpec = (o) =>
+        o.name === "rect"
+          ? {{ ...o, name: "box", styles: {{ rect: {{ style: "stroke", borderColor: accent, borderSize: 1 }} }} }}
+          : o.name === "dot"
+            ? {{ ...o, styles: {{ point: {{ color: accent, borderColor: accent, borderSize: 6, radius: 3 }} }} }}
+            : o;
       const loadBars = (callback) => {{
         const bars = toKlineBars();
         callback(bars, false);
@@ -157,11 +186,7 @@ class KLineChart(anywidget.AnyWidget):
           // Overlays need data-loaded axes; create them once, after first load.
           (model.get("overlays") || []).forEach((o) => {{
             try {{
-              chart.createOverlay(
-                o.name === "rect"
-                  ? {{ ...o, name: "box", styles: {{ rect: {{ style: "stroke", borderColor: accent, borderSize: 1 }} }} }}
-                  : o
-              );
+              chart.createOverlay(overlaySpec(o));
             }} catch (e) {{
               console.warn("overlay failed:", o.name, e);
             }}
@@ -231,6 +256,7 @@ class KLineChart(anywidget.AnyWidget):
     panes = traitlets.Dict().tag(sync=True)
     overlays = traitlets.List(trait=traitlets.Dict(traits=None)).tag(sync=True)
     indicators = traitlets.List(trait=traitlets.Dict(traits=None)).tag(sync=True)
+    rrg = traitlets.List(trait=traitlets.Dict(traits=None)).tag(sync=True)
     title = traitlets.Unicode("").tag(sync=True)
     height = traitlets.Int(460).tag(sync=True)
     precision = traitlets.Int(2).tag(sync=True)
@@ -252,6 +278,7 @@ class KLineChart(anywidget.AnyWidget):
         panes: Mapping[str, Sequence[float | None]] | None = None,
         overlays: Sequence[Mapping[str, Any]] | None = None,
         indicators: Sequence[Mapping[str, Any]] | None = None,
+        rrg: Sequence[Mapping[str, Any]] | None = None,
         theme: str = "default",
         colors: Colors | Mapping[str, str] | None = None,
         title: str = "",
@@ -277,6 +304,7 @@ class KLineChart(anywidget.AnyWidget):
             panes=_normalize_lines(panes, len(records)),
             overlays=_normalize_overlays(overlays),
             indicators=[dict(ind) for ind in (indicators or [])],
+            rrg=_normalize_rrg(rrg),
             title=title,
             height=height,
             precision=precision if precision is not None else _infer_precision(records),

@@ -10,39 +10,17 @@ from __future__ import annotations
 import html as _html
 import json
 import uuid
-from typing import TYPE_CHECKING
+from collections.abc import Mapping
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
+from klinepy._rrg_js import _RRG_JS
 from klinepy._theme import _KLINECHARTS_ESM
 
 if TYPE_CHECKING:
     from klinepy.widget import KLineChart
 
 __all__ = ["fragment", "html"]
-
-
-def _cfg(chart: KLineChart) -> str:
-    """Trait values as a JSON config object for the page script."""
-    keys = (
-        "bars",
-        "lines",
-        "panes",
-        "overlays",
-        "indicators",
-        "title",
-        "height",
-        "precision",
-        "up_color",
-        "down_color",
-        "no_change_color",
-        "accent_color",
-        "price_line_color",
-        "background_color",
-        "grid_color",
-        "border_color",
-        "text_color",
-    )
-    return json.dumps({k: getattr(chart, k) for k in keys}).replace("</", "<\\/")
-
 
 _JS = """
 let _seriesSeq = 0;
@@ -161,6 +139,13 @@ async function render(el, cfg) {
     }));
 
   let initialScrollDone = false;
+  // rect (box sugar) → "box" overlay; dot markers get the amber accent.
+  const overlaySpec = (o) =>
+    o.name === "rect"
+      ? { ...o, name: "box", styles: { rect: { style: "stroke", borderColor: accent, borderSize: 1 } } }
+      : o.name === "dot"
+        ? { ...o, styles: { point: { color: accent, borderColor: accent, borderSize: 6, radius: 3 } } }
+        : o;
   const loadBars = (callback) => {
     const bars = toKlineBars();
     callback(bars, false);
@@ -169,11 +154,7 @@ async function render(el, cfg) {
       // Overlays need data-loaded axes; create them once, after first load.
       (cfg.overlays || []).forEach((o) => {
         try {
-          chart.createOverlay(
-            o.name === "rect"
-              ? { ...o, name: "box", styles: { rect: { style: "stroke", borderColor: accent, borderSize: 1 } } }
-              : o
-          );
+          chart.createOverlay(overlaySpec(o));
         } catch (e) {
           console.warn("overlay failed:", o.name, e);
         }
@@ -223,26 +204,91 @@ async function render(el, cfg) {
 }
 """
 
-_BODY = f"""
-<div id="__ID__"></div>
+_BODY = """
+<div id="__ID__">__INNER__</div>
 <script type="module">
-  import {{ init, registerIndicator, registerOverlay }} from "{_KLINECHARTS_ESM}";
+  __IMPORT__
   const cfg = __CFG__;
   const el = document.getElementById("__ID__");
-  {_JS}
+  {JS_BODY}
   render(el, cfg);
 </script>
 """
 
 
-def fragment(chart: KLineChart) -> str:
-    """Embeddable HTML fragment — no ``<html>``/``<body>`` wrapper."""
-    dom_id = f"klinepy-chart-{uuid.uuid4().hex[:8]}"
-    return _BODY.replace("__ID__", dom_id).replace("__CFG__", _cfg(chart))
+def _body(chart: KLineChart) -> str:
+    if chart.rrg:
+        # RRG presentation mode: raw Canvas 2D renderer (klinecharts is a
+        # time-axis candle engine — wrong tool for x/y space).
+        js = _RRG_JS
+        inner = f'<canvas style="width:100%;height:{chart.height}px"></canvas>'
+    else:
+        js, inner = _JS, ""
+    # RRG mode never loads klinecharts: it's a raw Canvas 2D scatter.
+    import_line = (
+        ""
+        if chart.rrg
+        else f'import {{ init, registerIndicator, registerOverlay }} from "{_KLINECHARTS_ESM}";'
+    )
+    return (
+        _BODY.replace("{JS_BODY}", js)
+        .replace("__IMPORT__", import_line)
+        .replace("__INNER__", inner)
+        .replace("__ID__", f"klinepy-chart-{uuid.uuid4().hex[:8]}")
+        .replace("__CFG__", _cfg(chart))
+    )
 
 
-def html(chart: KLineChart) -> str:
-    """Standalone HTML document with CDN ESM import."""
+def _cfg(chart: KLineChart) -> str:
+    """Trait values as a JSON config object for the page script."""
+    keys = (
+        "bars",
+        "lines",
+        "panes",
+        "overlays",
+        "indicators",
+        "rrg",
+        "title",
+        "height",
+        "precision",
+        "up_color",
+        "down_color",
+        "no_change_color",
+        "accent_color",
+        "price_line_color",
+        "background_color",
+        "grid_color",
+        "border_color",
+        "text_color",
+    )
+    return json.dumps({k: getattr(chart, k) for k in keys}).replace("</", "<\\/")
+
+
+def _as_chart(
+    chart: KLineChart | Mapping[str, Any] | str | Path,
+) -> KLineChart:
+    """A static-charts-v1 bundle (dict or JSON path) → chart; a chart passes through."""
+    if isinstance(chart, (Mapping, str, Path)):
+        from klinepy.bundle import to_chart  # deferred: bundle→widget→html chain
+
+        return to_chart(chart)
+    return chart
+
+
+def fragment(chart: KLineChart | Mapping[str, Any] | str | Path) -> str:
+    """Embeddable HTML fragment — no ``<html>``/``<body>`` wrapper.
+
+    ``chart`` is a KLineChart, or a static-charts-v1 bundle (dict or JSON path).
+    """
+    return _body(_as_chart(chart))
+
+
+def html(chart: KLineChart | Mapping[str, Any] | str | Path) -> str:
+    """Standalone HTML document with CDN ESM import.
+
+    ``chart`` is a KLineChart, or a static-charts-v1 bundle (dict or JSON path).
+    """
+    chart = _as_chart(chart)
     return (
         "<!DOCTYPE html>\n"
         '<html lang="en">\n'
