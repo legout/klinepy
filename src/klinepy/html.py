@@ -47,6 +47,21 @@ registerOverlay({
       : [],
 });
 
+// Dot markers (e.g. bundle blue_dots): single filled circle at the point.
+// Fill/radius come from the per-overlay styles override at create time.
+registerOverlay({
+  name: "dot",
+  totalStep: 1,
+  createPointFigures: ({ coordinates, overlay }) =>
+    coordinates.length
+      ? [{
+          type: "circle",
+          attrs: { x: coordinates[0].x, y: coordinates[0].y, r: (overlay.styles?.point?.radius) || 3 },
+          styles: { color: overlay.styles?.point?.color },
+        }]
+      : [],
+});
+
 // Plot Python-supplied values as a custom indicator line.
 function addSeries(chart, name, values, paneId, accent, series) {
   const key = "klinepy_series_" + (_seriesSeq++);
@@ -292,5 +307,7 @@ def html(chart: KLineChart | Mapping[str, Any] | str | Path) -> str:
         '<html lang="en">\n'
         '<head><meta charset="utf-8"><title>'
         f"{_html.escape(chart.title or 'klinepy')}</title></head>\n"
-        f"<body>\n{fragment(chart)}\n</body>\n</html>\n"
+        # body wears the chart background: dark themes go full-bleed (no white
+        # band below the chart, no white flash before first paint)
+        f'<body style="margin:0;background:{chart.background_color}">\n{fragment(chart)}\n</body>\n</html>\n'
     )

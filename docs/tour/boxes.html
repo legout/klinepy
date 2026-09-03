@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>AAPL + Darvas</title></head>
+<body style="margin:0;background:#0f172a">
+
+<div id="klinepy-chart-ab248160"></div>
+<script type="module">
+  import { init, registerIndicator, registerOverlay } from "https://cdn.jsdelivr.net/npm/klinecharts@10.0.2/+esm";
+  const cfg = {"bars": [{"time": 1767571200000, "open": 100.0, "high": 100.9, "low": 97.9, "close": 98.8, "volume": 800000.0}, {"time": 1767657600000, "open": 98.8, "high": 100.41, "low": 97.9, "close": 99.51, "volume": 837000.0}, {"time": 1767744000000, "open": 99.51, "high": 101.12, "low": 98.61, "close": 100.22, "volume": 874000.0}, {"time": 1767830400000, "open": 100.22, "high": 101.83, "low": 99.32, "close": 100.93, "volume": 911000.0}, {"time": 1767916800000, "open": 100.93, "high": 102.52, "low": 100.03, "close": 101.62, "volume": 948000.0}, {"time": 1768176000000, "open": 101.62, "high": 102.52, "low": 99.95, "close": 100.85, "volume": 1059000.0}, {"time": 1768262400000, "open": 100.85, "high": 102.39, "low": 99.95, "close": 101.49, "volume": 1096000.0}, {"time": 1768348800000, "open": 101.49, "high": 103.02, "low": 100.59, "close": 102.12, "volume": 1133000.0}, {"time": 1768435200000, "open": 102.12, "high": 103.62, "low": 101.22, "close": 102.72, "volume": 1170000.0}, {"time": 1768521600000, "open": 102.72, "high": 104.21, "low": 101.82, "close": 103.31, "volume": 1207000.0}, {"time": 1768780800000, "open": 103.31, "high": 104.21, "low": 101.23, "close": 102.13, "volume": 1318000.0}, {"time": 1768867200000, "open": 102.13, "high": 103.52, "low": 101.23, "close": 102.62, "volume": 1355000.0}, {"time": 1768953600000, "open": 102.62, "high": 103.99, "low": 101.72, "close": 103.09, "volume": 1392000.0}, {"time": 1769040000000, "open": 103.09, "high": 104.43, "low": 102.19, "close": 103.53, "volume": 1429000.0}, {"time": 1769126400000, "open": 103.53, "high": 104.86, "low": 102.63, "close": 103.96, "volume": 1466000.0}, {"time": 1769385600000, "open": 103.96, "high": 104.86, "low": 101.4, "close": 102.3, "volume": 1577000.0}, {"time": 1769472000000, "open": 102.3, "high": 103.54, "low": 101.4, "close": 102.64, "volume": 1614000.0}, {"time": 1769558400000, "open": 102.64, "high": 103.86, "low": 101.74, "close": 102.96, "volume": 1651000.0}, {"time": 1769644800000, "open": 102.96, "high": 104.17, "low": 102.06, "close": 103.27, "volume": 1688000.0}, {"time": 1769731200000, "open": 103.27, "high": 104.47, "low": 102.37, "close": 103.57, "volume": 825000.0}, {"time": 1769990400000, "open": 103.57, "high": 104.47, "low": 100.7, "close": 101.6, "volume": 936000.0}, {"time": 1770076800000, "open": 101.6, "high": 102.77, "low": 100.7, "close": 101.87, "volume": 973000.0}, {"time": 1770163200000, "open": 101.87, "high": 103.04, "low": 100.97, "close": 102.14, "volume": 1010000.0}, {"time": 1770249600000, "open": 102.14, "high": 103.31, "low": 101.24, "close": 102.41, "volume": 1047000.0}, {"time": 1770336000000, "open": 102.41, "high": 103.58, "low": 101.51, "close": 102.68, "volume": 1084000.0}, {"time": 1770595200000, "open": 102.68, "high": 103.58, "low": 99.84, "close": 100.74, "volume": 1195000.0}, {"time": 1770681600000, "open": 100.74, "high": 101.95, "low": 99.84, "close": 101.05, "volume": 1232000.0}, {"time": 1770768000000, "open": 101.05, "high": 102.27, "low": 100.15, "close": 101.37, "volume": 1269000.0}, {"time": 1770854400000, "open": 101.37, "high": 102.61, "low": 100.47, "close": 101.71, "volume": 1306000.0}, {"time": 1770940800000, "open": 101.71, "high": 102.96, "low": 100.81, "close": 102.06, "volume": 1343000.0}, {"time": 1771200000000, "open": 102.06, "high": 102.96, "low": 99.52, "close": 100.42, "volume": 1454000.0}, {"time": 1771286400000, "open": 100.42, "high": 101.74, "low": 99.52, "close": 100.84, "volume": 1491000.0}, {"time": 1771372800000, "open": 100.84, "high": 102.19, "low": 99.94, "close": 101.29, "volume": 1528000.0}, {"time": 1771459200000, "open": 101.29, "high": 102.65, "low": 100.39, "close": 101.75, "volume": 1565000.0}, {"time": 1771545600000, "open": 101.75, "high": 103.13, "low": 100.85, "close": 102.23, "volume": 1602000.0}, {"time": 1771804800000, "open": 102.23, "high": 103.13, "low": 100.06, "close": 100.96, "volume": 813000.0}, {"time": 1771891200000, "open": 100.96, "high": 102.4, "low": 100.06, "close": 101.5, "volume": 850000.0}, {"time": 1771977600000, "open": 101.5, "high": 102.95, "low": 100.6, "close": 102.05, "volume": 887000.0}, {"time": 1772064000000, "open": 102.05, "high": 103.51, "low": 101.15, "close": 102.61, "volume": 924000.0}, {"time": 1772150400000, "open": 102.61, "high": 104.07, "low": 101.71, "close": 103.17, "volume": 961000.0}, {"time": 1772409600000, "open": 103.17, "high": 104.07, "low": 101.19, "close": 102.09, "volume": 1072000.0}, {"time": 1772496000000, "open": 102.09, "high": 103.57, "low": 101.19, "close": 102.67, "volume": 1109000.0}, {"time": 1772582400000, "open": 102.67, "high": 104.13, "low": 101.77, "close": 103.23, "volume": 1146000.0}, {"time": 1772668800000, "open": 103.23, "high": 104.69, "low": 102.33, "close": 103.79, "volume": 1183000.0}, {"time": 1772755200000, "open": 103.79, "high": 105.24, "low": 102.89, "close": 104.34, "volume": 1220000.0}, {"time": 1773014400000, "open": 104.34, "high": 105.24, "low": 102.22, "close": 103.12, "volume": 1331000.0}, {"time": 1773100800000, "open": 103.12, "high": 104.51, "low": 102.22, "close": 103.61, "volume": 1368000.0}, {"time": 1773187200000, "open": 103.61, "high": 104.98, "low": 102.71, "close": 104.08, "volume": 1405000.0}, {"time": 1773273600000, "open": 104.08, "high": 105.43, "low": 103.18, "close": 104.53, "volume": 1442000.0}, {"time": 1773360000000, "open": 104.53, "high": 105.86, "low": 103.63, "close": 104.96, "volume": 1479000.0}, {"time": 1773619200000, "open": 104.96, "high": 105.86, "low": 102.4, "close": 103.3, "volume": 1590000.0}, {"time": 1773705600000, "open": 103.3, "high": 104.53, "low": 102.4, "close": 103.63, "volume": 1627000.0}, {"time": 1773792000000, "open": 103.63, "high": 104.84, "low": 102.73, "close": 103.94, "volume": 1664000.0}, {"time": 1773878400000, "open": 103.94, "high": 105.12, "low": 103.04, "close": 104.22, "volume": 801000.0}, {"time": 1773964800000, "open": 104.22, "high": 105.38, "low": 103.32, "close": 104.48, "volume": 838000.0}, {"time": 1774224000000, "open": 104.48, "high": 105.38, "low": 101.41, "close": 102.31, "volume": 949000.0}, {"time": 1774310400000, "open": 102.31, "high": 103.39, "low": 101.41, "close": 102.49, "volume": 986000.0}, {"time": 1774396800000, "open": 102.49, "high": 103.54, "low": 101.59, "close": 102.64, "volume": 1023000.0}, {"time": 1774483200000, "open": 102.64, "high": 103.68, "low": 101.74, "close": 102.78, "volume": 1060000.0}, {"time": 1774569600000, "open": 102.78, "high": 103.81, "low": 101.88, "close": 102.91, "volume": 1097000.0}, {"time": 1774828800000, "open": 102.91, "high": 103.81, "low": 99.53, "close": 100.43, "volume": 1208000.0}, {"time": 1774915200000, "open": 100.43, "high": 101.43, "low": 99.53, "close": 100.53, "volume": 1245000.0}, {"time": 1775001600000, "open": 100.53, "high": 101.52, "low": 99.63, "close": 100.62, "volume": 1282000.0}, {"time": 1775088000000, "open": 100.62, "high": 101.62, "low": 99.72, "close": 100.72, "volume": 1319000.0}, {"time": 1775174400000, "open": 100.72, "high": 101.72, "low": 99.82, "close": 100.82, "volume": 1356000.0}, {"time": 1775433600000, "open": 100.82, "high": 101.72, "low": 97.48, "close": 98.38, "volume": 1467000.0}, {"time": 1775520000000, "open": 98.38, "high": 99.42, "low": 97.48, "close": 98.52, "volume": 1504000.0}, {"time": 1775606400000, "open": 98.52, "high": 99.57, "low": 97.62, "close": 98.67, "volume": 1541000.0}, {"time": 1775692800000, "open": 98.67, "high": 99.75, "low": 97.77, "close": 98.85, "volume": 1578000.0}, {"time": 1775779200000, "open": 98.85, "high": 99.94, "low": 97.95, "close": 99.04, "volume": 1615000.0}, {"time": 1776038400000, "open": 99.04, "high": 99.94, "low": 96.04, "close": 96.94, "volume": 826000.0}, {"time": 1776124800000, "open": 96.94, "high": 98.12, "low": 96.04, "close": 97.22, "volume": 863000.0}, {"time": 1776211200000, "open": 97.22, "high": 98.42, "low": 96.32, "close": 97.52, "volume": 900000.0}, {"time": 1776297600000, "open": 97.52, "high": 98.74, "low": 96.62, "close": 97.84, "volume": 937000.0}, {"time": 1776384000000, "open": 97.84, "high": 99.08, "low": 96.94, "close": 98.18, "volume": 974000.0}, {"time": 1776643200000, "open": 98.18, "high": 99.08, "low": 95.64, "close": 96.54, "volume": 1085000.0}, {"time": 1776729600000, "open": 96.54, "high": 97.86, "low": 95.64, "close": 96.96, "volume": 1122000.0}, {"time": 1776816000000, "open": 96.96, "high": 98.3, "low": 96.06, "close": 97.4, "volume": 1159000.0}, {"time": 1776902400000, "open": 97.4, "high": 98.76, "low": 96.5, "close": 97.86, "volume": 1196000.0}, {"time": 1776988800000, "open": 97.86, "high": 99.23, "low": 96.96, "close": 98.33, "volume": 1233000.0}, {"time": 1777248000000, "open": 98.33, "high": 99.23, "low": 96.09, "close": 96.99, "volume": 1344000.0}, {"time": 1777334400000, "open": 96.99, "high": 98.39, "low": 96.09, "close": 97.49, "volume": 1381000.0}, {"time": 1777420800000, "open": 97.49, "high": 98.89, "low": 96.59, "close": 97.99, "volume": 1418000.0}, {"time": 1777507200000, "open": 97.99, "high": 99.39, "low": 97.09, "close": 98.49, "volume": 1455000.0}, {"time": 1777593600000, "open": 98.49, "high": 99.89, "low": 97.59, "close": 98.99, "volume": 1492000.0}, {"time": 1777852800000, "open": 98.99, "high": 99.89, "low": 96.75, "close": 97.65, "volume": 1603000.0}, {"time": 1777939200000, "open": 97.65, "high": 99.02, "low": 96.75, "close": 98.12, "volume": 1640000.0}, {"time": 1778025600000, "open": 98.12, "high": 99.47, "low": 97.22, "close": 98.57, "volume": 1677000.0}, {"time": 1778112000000, "open": 98.57, "high": 99.91, "low": 97.67, "close": 99.01, "volume": 814000.0}, {"time": 1778198400000, "open": 99.01, "high": 100.33, "low": 98.11, "close": 99.43, "volume": 851000.0}, {"time": 1778457600000, "open": 99.43, "high": 100.33, "low": 96.89, "close": 97.79, "volume": 962000.0}, {"time": 1778544000000, "open": 97.79, "high": 99.04, "low": 96.89, "close": 98.14, "volume": 999000.0}, {"time": 1778630400000, "open": 98.14, "high": 99.37, "low": 97.24, "close": 98.47, "volume": 1036000.0}, {"time": 1778716800000, "open": 98.47, "high": 99.68, "low": 97.57, "close": 98.78, "volume": 1073000.0}, {"time": 1778803200000, "open": 98.78, "high": 99.98, "low": 97.88, "close": 99.08, "volume": 1110000.0}, {"time": 1779062400000, "open": 99.08, "high": 99.98, "low": 96.15, "close": 97.05, "volume": 1221000.0}, {"time": 1779148800000, "open": 97.05, "high": 98.18, "low": 96.15, "close": 97.28, "volume": 1258000.0}, {"time": 1779235200000, "open": 97.28, "high": 98.39, "low": 96.38, "close": 97.49, "volume": 1295000.0}, {"time": 1779321600000, "open": 97.49, "high": 98.6, "low": 96.59, "close": 97.7, "volume": 1332000.0}, {"time": 1779408000000, "open": 97.7, "high": 98.79, "low": 96.8, "close": 97.89, "volume": 1369000.0}, {"time": 1779667200000, "open": 97.89, "high": 98.79, "low": 94.74, "close": 95.64, "volume": 1480000.0}, {"time": 1779753600000, "open": 95.64, "high": 96.72, "low": 94.74, "close": 95.82, "volume": 1517000.0}, {"time": 1779840000000, "open": 95.82, "high": 96.9, "low": 94.92, "close": 96.0, "volume": 1554000.0}, {"time": 1779926400000, "open": 96.0, "high": 97.09, "low": 95.1, "close": 96.19, "volume": 1591000.0}, {"time": 1780012800000, "open": 96.19, "high": 97.29, "low": 95.29, "close": 96.39, "volume": 1628000.0}, {"time": 1780272000000, "open": 96.39, "high": 97.29, "low": 93.35, "close": 94.25, "volume": 839000.0}, {"time": 1780358400000, "open": 94.25, "high": 95.4, "low": 93.35, "close": 94.5, "volume": 876000.0}, {"time": 1780444800000, "open": 94.5, "high": 95.67, "low": 93.6, "close": 94.77, "volume": 913000.0}], "lines": {}, "panes": {}, "overlays": [{"name": "rect", "points": [{"timestamp": 1777593600000, "value": 100.33}, {"timestamp": 1780444800000, "value": 93.35}]}], "indicators": [], "rrg": [], "title": "AAPL + Darvas", "height": 460, "precision": 2, "up_color": "#4ade80", "down_color": "#f87171", "no_change_color": "#737373", "accent_color": "#fbbf24", "price_line_color": "#fbbf24", "background_color": "#0f172a", "grid_color": "#1e293b", "border_color": "#334155", "text_color": "#94a3b8"};
+  const el = document.getElementById("klinepy-chart-ab248160");
+  
+let _seriesSeq = 0;
+
+// Box overlay (e.g. Darvas): rect figure from two corner points.
+// Border color comes from the per-overlay styles override at create time.
+registerOverlay({
+  name: "box",
+  totalStep: 2,
+  needDefaultPointFigure: true,
+  needDefaultXAxisFigure: true,
+  needDefaultYAxisFigure: true,
+  createPointFigures: ({ coordinates }) =>
+    coordinates.length === 2
+      ? [{
+          type: "rect",
+          attrs: {
+            x: Math.min(coordinates[0].x, coordinates[1].x),
+            y: Math.min(coordinates[0].y, coordinates[1].y),
+            width: Math.abs(coordinates[1].x - coordinates[0].x),
+            height: Math.abs(coordinates[1].y - coordinates[0].y),
+          },
+        }]
+      : [],
+});
+
+// Dot markers (e.g. bundle blue_dots): single filled circle at the point.
+// Fill/radius come from the per-overlay styles override at create time.
+registerOverlay({
+  name: "dot",
+  totalStep: 1,
+  createPointFigures: ({ coordinates, overlay }) =>
+    coordinates.length
+      ? [{
+          type: "circle",
+          attrs: { x: coordinates[0].x, y: coordinates[0].y, r: (overlay.styles?.point?.radius) || 3 },
+          styles: { color: overlay.styles?.point?.color },
+        }]
+      : [],
+});
+
+// Plot Python-supplied values as a custom indicator line.
+function addSeries(chart, name, values, paneId, accent, series) {
+  const key = "klinepy_series_" + (_seriesSeq++);
+  registerIndicator({
+    name: key,
+    shortName: name,
+    series,
+    precision: 2,
+    figures: [{ key: "v", title: name + ": ", type: "line", styles: () => ({ color: accent, size: 1.5 }) }],
+    calc: (dataList, indicator) => dataList.map((d, i) => ({ v: values[i] ?? null })),
+  });
+  return chart.createIndicator({ name: key, paneId }, paneId === "candle_pane");
+}
+
+async function render(el, cfg) {
+  const container = document.createElement("div");
+  container.style.width = "100%";
+  container.style.height = cfg.height + "px";
+  container.style.background = cfg.background_color;
+  el.appendChild(container);
+
+  const lines = cfg.lines || {};
+  const overlayNames = Object.keys(lines);
+  const accent = cfg.accent_color;
+
+  const styles = {
+    grid: {
+      horizontal: { color: cfg.grid_color },
+      vertical: { color: cfg.grid_color },
+    },
+    candle: {
+      bar: {
+        upColor: cfg.up_color,
+        downColor: cfg.down_color,
+        noChangeColor: cfg.no_change_color,
+        upBorderColor: cfg.up_color,
+        downBorderColor: cfg.down_color,
+        noChangeBorderColor: cfg.no_change_color,
+        upWickColor: cfg.up_color,
+        downWickColor: cfg.down_color,
+        noChangeWickColor: cfg.no_change_color,
+      },
+      priceMark: {
+        high: { color: cfg.text_color },
+        low: { color: cfg.text_color },
+        last: {
+          upColor: cfg.price_line_color,
+          downColor: cfg.price_line_color,
+          noChangeColor: cfg.price_line_color,
+        },
+      },
+    },
+    indicator: {
+      bars: [{
+        upColor: cfg.up_color,
+        downColor: cfg.down_color,
+        noChangeColor: cfg.no_change_color,
+      }],
+    },
+    xAxis: {
+      axisLine: { color: cfg.border_color },
+      tickLine: { color: cfg.border_color },
+      tickText: { color: cfg.text_color },
+    },
+    yAxis: {
+      axisLine: { color: cfg.border_color },
+      tickLine: { color: cfg.border_color },
+      tickText: { color: cfg.text_color },
+    },
+    separator: { color: cfg.border_color },
+  };
+
+  const chart = init(container, {
+    styles,
+    locale: "en-US",
+    timezone: "UTC",
+    layout: { yAxis: { position: "right" } },
+  });
+  chart.setSymbol({ ticker: cfg.title || "—", pricePrecision: cfg.precision });
+  chart.setPeriod({ span: 1, type: "day" });
+
+  const toKlineBars = () =>
+    (cfg.bars || []).map((b) => ({
+      timestamp: b.time,
+      open: b.open,
+      high: b.high,
+      low: b.low,
+      close: b.close,
+      volume: b.volume ?? 0,
+    }));
+
+  let initialScrollDone = false;
+  // rect (box sugar) → "box" overlay; dot markers get the amber accent.
+  const overlaySpec = (o) =>
+    o.name === "rect"
+      ? { ...o, name: "box", styles: { rect: { style: "stroke", borderColor: accent, borderSize: 1 } } }
+      : o.name === "dot"
+        ? { ...o, styles: { point: { color: accent, borderColor: accent, borderSize: 6, radius: 3 } } }
+        : o;
+  const loadBars = (callback) => {
+    const bars = toKlineBars();
+    callback(bars, false);
+    if (!initialScrollDone && bars.length) {
+      initialScrollDone = true;
+      // Overlays need data-loaded axes; create them once, after first load.
+      (cfg.overlays || []).forEach((o) => {
+        try {
+          chart.createOverlay(overlaySpec(o));
+        } catch (e) {
+          console.warn("overlay failed:", o.name, e);
+        }
+      });
+      // scrollToDataIndex here breaks overlay rendering in 10.0.2;
+      // offset 0 shows the latest bars instead.
+      try {
+        chart.setOffsetRightDistance(0);
+      } catch (e) { /* older API */ }
+    }
+  };
+  chart.setDataLoader({ getBars: ({ callback }) => loadBars(callback) });
+
+  chart.createIndicator({ name: "VOL", paneId: "candle_pane_vol" });
+  chart.setPaneOptions({ id: "candle_pane_vol", height: 90 });
+  // Overlay lines: plot the synced Python values, amber accent, on the price pane.
+  overlayNames.forEach((n) => addSeries(chart, n, lines[n], "candle_pane", accent, "price"));
+  // Own-pane series (e.g. rel vol): one sub-pane per named series.
+  const panes = cfg.panes || {};
+  let paneCount = 0;
+  Object.keys(panes).forEach((n) => {
+    const paneId = "pane_line_" + (paneCount++);
+    addSeries(chart, n, panes[n], paneId, accent, "normal");
+    chart.setPaneOptions({ id: paneId, height: 90 });
+  });
+  // Overlays (boxes, lines, tags): created inside loadBars after first data.
+
+  const inds = cfg.indicators || [];
+  let subCount = 0;
+  inds.forEach((spec) => {
+    try {
+      const entry = { name: spec.name };
+      if (spec.params) entry.calcParams = spec.params;
+      if (spec.pane === "candle") {
+        entry.paneId = "candle_pane";
+        chart.createIndicator(entry, true);
+      } else {
+        const paneId = "ind_pane_" + (subCount++);
+        entry.paneId = paneId;
+        chart.createIndicator(entry);
+        chart.setPaneOptions({ id: paneId, height: spec.height || 90 });
+      }
+    } catch (e) {
+      console.warn("indicator failed:", spec.name, e);
+    }
+  });
+}
+
+  render(el, cfg);
+</script>
+
+</body>
+</html>

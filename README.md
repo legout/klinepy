@@ -33,6 +33,16 @@ KLineChart(bars, colors=Colors(
 
 ![dark](docs/images/dark.png)
 
+### 🎬 Animated tour
+
+![tour](docs/tour/tour.gif)
+
+*Dark-mode tour — candles + SMA, Darvas boxes, a `static-charts-v1` bundle
+(rs line + blue dots), and RRG mode. Video: [docs/tour/tour.webm](docs/tour/tour.webm)
+(attach it to the release/PR for inline playback);
+regenerate with `uv run python scripts/emit-tour-html.py && node scripts/capture-tour.mjs`
+(requires `npx playwright install chromium` + ffmpeg).*
+
 Precedence: `*_color` kwargs > `colors` > `theme` > defaults.
 
 Grayscale theme with a single amber accent (`#d97706`). The JS side loads the

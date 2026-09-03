@@ -72,3 +72,16 @@ def test_output_contains_overlays():
     assert '"name": "rect"' in doc
     assert '"value": 11.5' in doc
     assert "createOverlay" in doc
+
+
+def test_dot_overlay_registered_in_both_embeds():
+    # bundle blue_dots emit name:"dot"; klinecharts has no built-in dot,
+    # so both embeds must register the circle-figure overlay.
+    for embed in (KLineChart._esm, KLineChart(_bars()).to_html()):
+        assert 'name: "dot"' in embed
+        assert 'type: "circle"' in embed
+
+
+def test_standalone_body_uses_chart_background():
+    doc = KLineChart(_bars(), colors={"background": "#0f172a"}).to_html()
+    assert '<body style="margin:0;background:#0f172a">' in doc

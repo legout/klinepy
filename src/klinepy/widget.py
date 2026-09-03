@@ -58,6 +58,21 @@ class KLineChart(anywidget.AnyWidget):
           : [],
     }});
 
+    // Dot markers (e.g. bundle blue_dots): single filled circle at the point.
+    // Fill/radius come from the per-overlay styles override at create time.
+    registerOverlay({{
+      name: "dot",
+      totalStep: 1,
+      createPointFigures: ({{ coordinates, overlay }}) =>
+        coordinates.length
+          ? [{{
+              type: "circle",
+              attrs: {{ x: coordinates[0].x, y: coordinates[0].y, r: (overlay.styles?.point?.radius) || 3 }},
+              styles: {{ color: overlay.styles?.point?.color }},
+            }}]
+          : [],
+    }});
+
     // Plot Python-supplied values as a custom indicator line.
     function addSeries(chart, name, values, paneId, accent, series) {{
       const key = "klinepy_series_" + (_seriesSeq++);
