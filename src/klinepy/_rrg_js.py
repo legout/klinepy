@@ -81,7 +81,7 @@ function renderRRG(el, cfg) {
       ctx.beginPath(); ctx.moveTo(gx, top); ctx.lineTo(gx, top + plotH); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(left, gy); ctx.lineTo(left + plotW, gy); ctx.stroke();
       ctx.fillStyle = textDim;
-      ctx.textAlign = "center"; ctx.textBaseline = "top";
+      ctx.textAlign = i === 5 ? "right" : "center"; ctx.textBaseline = "top";
       if (i > 0) ctx.fillText((xr[0] + t * (xr[1] - xr[0])).toFixed(1), gx, top + plotH + 4);
       ctx.textAlign = "right";
       ctx.fillText((yr[0] + t * (yr[1] - yr[0])).toFixed(1), left - 5, gy - 5);
